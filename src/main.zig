@@ -10,8 +10,9 @@ pub fn main() !void {
 }
 
 fn run(allocator: std.mem.Allocator) !void {
-    // const path = "/home/n/test";
-    const path = "/home/n/code/zig-rando-project";
+    const args = try std.process.argsAlloc(allocator);
+    const path_input = if (args.len > 1) args[1] else try std.process.getCwdAlloc(allocator);
+    const path = try std.fs.realpathAlloc(allocator, path_input);
     var dir = try std.fs.openDirAbsolute(path, .{ .iterate = true });
     defer dir.close();
     std.debug.print("{s}\n", .{path});
@@ -24,10 +25,7 @@ fn pprint_dir(allocator: std.mem.Allocator, dir: std.fs.Dir, depth: usize, last_
     var list = std.ArrayList(std.fs.Dir.Entry).init(allocator);
 
     while (try it.next()) |file| {
-        // std.debug.print("{d} {s}\n", .{ depth, file.name });
         try list.append(file);
-        // if (file.kind == .directory) {
-        // }
     }
     std.sort.heap(std.fs.Dir.Entry, list.items, {}, cmpFile);
 
