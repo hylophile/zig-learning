@@ -53,9 +53,13 @@ fn pprint_dir(allocator: std.mem.Allocator, dir: std.fs.Dir, depth: usize, last_
     }
 }
 
-fn cmpFile(context: void, a: std.fs.Dir.Entry, b: std.fs.Dir.Entry) bool {
-    _ = context;
-    if (a.name[0] < b.name[0]) {
+fn cmpFile(_: void, a: std.fs.Dir.Entry, b: std.fs.Dir.Entry) bool {
+    // _ = context;                //
+    if (a.kind != b.kind) {
+        if (a.kind == std.fs.Dir.Entry.Kind.file) return true;
+        if (b.kind == std.fs.Dir.Entry.Kind.file) return false;
+    }
+    if (std.ascii.lessThanIgnoreCase(a.name, b.name)) {
         return true;
     }
     return false;
